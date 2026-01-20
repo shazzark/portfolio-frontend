@@ -35,7 +35,7 @@ export default function Contact() {
 
     const subject = encodeURIComponent(`Portfolio Contact from ${name}`);
     const body = encodeURIComponent(
-      `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
+      `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
     );
 
     // CHANGE THIS TO YOUR REAL EMAIL
@@ -112,7 +112,7 @@ export default function Contact() {
                     <Input
                       id="email"
                       type="email"
-                      placeholder="your.email@example.com"
+                      placeholder="chidozinnam@gmail.com"
                       value={formData.email}
                       onChange={handleInputChange}
                       required
@@ -139,7 +139,11 @@ export default function Contact() {
                   </div>
 
                   {/* Submit */}
-                  <Button type="submit" className="w-full" size="lg">
+                  <Button
+                    type="submit"
+                    className="w-full cursor-pointer"
+                    size="lg"
+                  >
                     Send Message
                   </Button>
                 </form>

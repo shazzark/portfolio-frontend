@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { skillsAPI } from "../_lib/api";
 
 import Loading from "../_component/_ui/loadingSpinner";
@@ -21,6 +21,7 @@ import {
   GitBranch,
   MessageSquare,
 } from "lucide-react";
+import SkillsSkeleton from "./_ui/skillsSkeletonLoader";
 
 /* =========================
    ICON REGISTRY
@@ -56,8 +57,21 @@ export default function SkillsPage() {
     fetchSkills();
   }, []);
 
-  if (loading) return <Loading />;
-  if (error) return <ErrorMessage message={error} />;
+  /* ------------------ LOADING SKELETON ------------------ */
+  if (loading) {
+    return (
+      <section id="skills" className="py-20">
+        <div className="container mx-auto px-4">
+          <SkillsSkeleton />
+        </div>
+      </section>
+    );
+  }
+
+  /* ------------------ ERROR ------------------ */
+  if (error) {
+    return <ErrorMessage message={error} />;
+  }
 
   const { categories, featuredSkills, stats } = data;
 
@@ -83,32 +97,42 @@ export default function SkillsPage() {
         {/* =========================
             FEATURED SKILLS
         ========================= */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-16">
-          {featuredSkills.map((skill, i) => {
-            const Icon = iconMap[skill.icon];
+        <AnimatePresence>
+          <motion.div
+            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-16"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: { transition: { staggerChildren: 0.1 } },
+            }}
+          >
+            {featuredSkills.map((skill, i) => {
+              const Icon = iconMap[skill.icon];
 
-            return (
-              <motion.div
-                key={skill.name}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <Card className="h-full">
-                  <CardContent className="p-6">
-                    <div className="mb-4 bg-primary/10 p-3 rounded-lg w-fit">
-                      {Icon && <Icon className="h-6 w-6 text-primary" />}
-                    </div>
-                    <h3 className="font-semibold mb-1">{skill.name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {skill.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            );
-          })}
-        </div>
+              return (
+                <motion.div
+                  key={skill.name}
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    visible: { opacity: 1, y: 0 },
+                  }}
+                >
+                  <Card className="h-full">
+                    <CardContent className="p-6">
+                      <div className="mb-4 bg-primary/10 p-3 rounded-lg w-fit">
+                        {Icon && <Icon className="h-6 w-6 text-primary" />}
+                      </div>
+                      <h3 className="font-semibold mb-1">{skill.name}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {skill.description}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        </AnimatePresence>
 
         {/* =========================
             CATEGORIES + SKILLS
@@ -127,7 +151,7 @@ export default function SkillsPage() {
                       <CategoryIcon
                         className={`h-5 w-5 ${category.color.replace(
                           "bg-",
-                          "text-"
+                          "text-",
                         )}`}
                       />
                     )}
@@ -135,34 +159,49 @@ export default function SkillsPage() {
                   <h3 className="text-2xl font-bold">{category.title}</h3>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <motion.div
+                  className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                  initial="hidden"
+                  animate="visible"
+                  variants={{
+                    visible: { transition: { staggerChildren: 0.1 } },
+                  }}
+                >
                   {category.skills.map((skill) => (
-                    <Card key={skill.id}>
-                      <CardContent className="p-5">
-                        <div className="flex justify-between mb-3">
-                          <div className="flex gap-3 items-center">
-                            <span className="text-xl">{skill.icon}</span>
-                            <div>
-                              <h4 className="font-semibold">{skill.name}</h4>
-                              <p className="text-xs text-muted-foreground">
-                                {skill.years} years experience
-                              </p>
+                    <motion.div
+                      key={skill.id}
+                      variants={{
+                        hidden: { opacity: 0, y: 20 },
+                        visible: { opacity: 1, y: 0 },
+                      }}
+                    >
+                      <Card>
+                        <CardContent className="p-5">
+                          <div className="flex justify-between mb-3">
+                            <div className="flex gap-3 items-center">
+                              <span className="text-xl">{skill.icon}</span>
+                              <div>
+                                <h4 className="font-semibold">{skill.name}</h4>
+                                <p className="text-xs text-muted-foreground">
+                                  {skill.years} years experience
+                                </p>
+                              </div>
                             </div>
+                            <Badge variant="secondary">{skill.level}%</Badge>
                           </div>
-                          <Badge variant="secondary">{skill.level}%</Badge>
-                        </div>
 
-                        {/* Progress Bar */}
-                        <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                          <div
-                            className={`h-full ${category.color}`}
-                            style={{ width: `${skill.level}%` }}
-                          />
-                        </div>
-                      </CardContent>
-                    </Card>
+                          {/* Progress Bar */}
+                          <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                            <div
+                              className={`h-full ${category.color}`}
+                              style={{ width: `${skill.level}%` }}
+                            />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               </div>
             );
           })}

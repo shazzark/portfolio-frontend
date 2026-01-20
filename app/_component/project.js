@@ -7,7 +7,8 @@ import { ExternalLink, Github } from "lucide-react";
 import { Badge } from "./_ui/badge";
 import { projectsAPI } from "../_lib/api";
 import ErrorMessage from "../_component/_ui/errorMessage";
-import LoadingSpinner from "../_component/_ui/loadingSpinner";
+import SkeletonLoader from "./_ui/skeletonLoader";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Projects() {
   const ref = useRef(null);
@@ -30,7 +31,7 @@ export default function Projects() {
           response?.data?.projects ||
             response?.data?.project ||
             response?.projects ||
-            []
+            [],
         );
       } catch (err) {
         console.error("Failed to fetch projects:", err);
@@ -44,90 +45,79 @@ export default function Projects() {
     fetchProjects();
   }, []);
 
-  /* ------------------ LOADING STATE ------------------ */
-  if (isLoading) {
-    return (
-      <section
-        id="projects"
-        className="border-t border-border bg-muted/30 py-12 md:py-20"
-      >
-        <div className="container mx-auto px-4 sm:px-6">
-          <h2 className="mb-8 text-center text-2xl font-bold sm:text-3xl md:mb-12 md:text-4xl">
-            Projects
-          </h2>
-          <div className="flex items-center justify-center py-12 md:py-20">
-            <LoadingSpinner size="large" />
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  /* ------------------ ERROR STATE ------------------ */
-  if (error && projects.length === 0) {
-    return (
-      <section
-        id="projects"
-        className="border-t border-border bg-muted/30 py-12 md:py-20"
-      >
-        <div className="container mx-auto px-4 sm:px-6">
-          <ErrorMessage message={error} />
-          <h2 className="mb-8 text-center text-2xl font-bold sm:text-3xl md:mb-12 md:text-4xl">
-            Projects
-          </h2>
-          <p className="text-center text-muted-foreground">
-            No projects to display.
-          </p>
-        </div>
-      </section>
-    );
-  }
-
-  /* ------------------ EMPTY STATE ------------------ */
-  if (projects.length === 0) {
-    return (
-      <section
-        id="projects"
-        className="border-t border-border bg-muted/30 py-12 md:py-20"
-      >
-        <div className="container mx-auto px-4 sm:px-6">
-          <h2 className="mb-8 text-center text-2xl font-bold sm:text-3xl md:mb-12 md:text-4xl">
-            Projects
-          </h2>
-          <p className="text-center text-muted-foreground">
-            No projects to display yet.
-          </p>
-        </div>
-      </section>
-    );
-  }
-
   /* ------------------ MAIN RENDER ------------------ */
   return (
-    <>
-      {error && <ErrorMessage message={error} onClose={() => setError("")} />}
+    <section
+      id="projects"
+      className="border-t border-border bg-muted/30 py-12 md:py-20"
+    >
+      <div className="container mx-auto px-4 sm:px-6">
+        <h2 className="mb-8 text-center text-2xl font-bold sm:text-3xl md:mb-12 md:text-4xl">
+          Projects
+        </h2>
 
-      <section
-        id="projects"
-        className="border-t border-border bg-muted/30 py-12 md:py-20"
-      >
-        <div className="container mx-auto px-4 sm:px-6">
-          <h2 className="mb-8 text-center text-2xl font-bold sm:text-3xl md:mb-12 md:text-4xl">
-            Projects
-          </h2>
+        {/* ------------------ ERROR ------------------ */}
+        {error && <ErrorMessage message={error} />}
 
-          {/* Responsive Grid - 1 column on mobile, 2 on tablet, 2-3 on desktop */}
-          <div className="mx-auto grid gap-4 sm:gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+        {/* ------------------ LOADING SKELETON ------------------ */}
+        <AnimatePresence>
+          {isLoading && (
+            <motion.div
+              className="mx-auto grid gap-4 sm:gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              variants={{
+                visible: { transition: { staggerChildren: 0.1 } },
+              }}
+            >
+              {Array.from({ length: 6 }).map((_, i) => (
+                <motion.div
+                  key={i}
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    visible: { opacity: 1, y: 0 },
+                  }}
+                >
+                  <SkeletonLoader />
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ------------------ PROJECT CARDS ------------------ */}
+        {!isLoading && projects.length > 0 && (
+          <motion.div
+            className="mx-auto grid gap-4 sm:gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: { transition: { staggerChildren: 0.1 } },
+            }}
+          >
             {projects.map((project) => (
-              <ProjectCard
+              <motion.div
                 key={project._id || project.slug}
-                project={project}
-              />
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+              >
+                <ProjectCard project={project} />
+              </motion.div>
             ))}
-          </div>
-        </div>
-      </section>
-    </>
+          </motion.div>
+        )}
+
+        {/* ------------------ EMPTY STATE ------------------ */}
+        {!isLoading && projects.length === 0 && !error && (
+          <p className="text-center text-muted-foreground mt-8">
+            No projects to display yet.
+          </p>
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -140,14 +130,12 @@ function ProjectCard({ project }) {
           <h3 className="text-lg font-semibold sm:text-xl line-clamp-2">
             {project.title}
           </h3>
-
           <div className="flex flex-wrap gap-2">
             {project.featured && (
               <Badge variant="default" className="text-xs">
                 Featured
               </Badge>
             )}
-
             {project.category && (
               <Badge variant="outline" className="text-xs">
                 {project.category}
@@ -161,7 +149,6 @@ function ProjectCard({ project }) {
         <p className="mb-4 text-sm text-muted-foreground sm:text-base line-clamp-3">
           {project.description}
         </p>
-
         {project.longDescription && (
           <p className="mb-4 text-xs text-muted-foreground/70 sm:text-sm line-clamp-3">
             {project.longDescription.length > 120
@@ -169,7 +156,6 @@ function ProjectCard({ project }) {
               : project.longDescription}
           </p>
         )}
-
         <div className="flex flex-wrap gap-1.5 sm:gap-2">
           {project.technologies?.slice(0, 5).map((tech) => (
             <Badge
