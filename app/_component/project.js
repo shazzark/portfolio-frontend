@@ -1,51 +1,21 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef } from "react";
+import { useProjects } from "../_lib/queries/useProject";
 import { Card, CardContent, CardFooter, CardHeader } from "./_ui/card";
 import { Button } from "./_ui/button";
 import { ExternalLink, Github } from "lucide-react";
 import { Badge } from "./_ui/badge";
-import { projectsAPI } from "../_lib/api";
 import ErrorMessage from "../_component/_ui/errorMessage";
 import SkeletonLoader from "./_ui/skeletonLoader";
 import { motion, AnimatePresence } from "framer-motion";
+import ProjectCard from "./_ui/projectCard";
 
 export default function Projects() {
   const ref = useRef(null);
-  const [projects, setProjects] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        setIsLoading(true);
-        setError("");
+  const { data: projects = [], isLoading, isError, error } = useProjects();
 
-        const response = await projectsAPI.getAll({
-          sort: "-createdAt",
-          limit: 12,
-        });
-
-        setProjects(
-          response?.data?.projects ||
-            response?.data?.project ||
-            response?.projects ||
-            [],
-        );
-      } catch (err) {
-        console.error("Failed to fetch projects:", err);
-        setError("Failed to load projects. Please try again later.");
-        setProjects([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchProjects();
-  }, []);
-
-  /* ------------------ MAIN RENDER ------------------ */
   return (
     <section
       id="projects"
@@ -56,176 +26,46 @@ export default function Projects() {
           Projects
         </h2>
 
-        {/* ------------------ ERROR ------------------ */}
-        {error && <ErrorMessage message={error} />}
+        {isError && (
+          <ErrorMessage message={error?.message || "Failed to load projects"} />
+        )}
 
-        {/* ------------------ LOADING SKELETON ------------------ */}
         <AnimatePresence>
           {isLoading && (
             <motion.div
-              className="mx-auto grid gap-4 sm:gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
+              className="mx-auto grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
               initial="hidden"
               animate="visible"
               exit="hidden"
-              variants={{
-                visible: { transition: { staggerChildren: 0.1 } },
-              }}
             >
               {Array.from({ length: 6 }).map((_, i) => (
-                <motion.div
-                  key={i}
-                  variants={{
-                    hidden: { opacity: 0, y: 20 },
-                    visible: { opacity: 1, y: 0 },
-                  }}
-                >
-                  <SkeletonLoader />
-                </motion.div>
+                <SkeletonLoader key={i} />
               ))}
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* ------------------ PROJECT CARDS ------------------ */}
         {!isLoading && projects.length > 0 && (
           <motion.div
-            className="mx-auto grid gap-4 sm:gap-6 lg:gap-8 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
+            className="mx-auto grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
             initial="hidden"
             animate="visible"
-            variants={{
-              visible: { transition: { staggerChildren: 0.1 } },
-            }}
           >
             {projects.map((project) => (
-              <motion.div
+              <ProjectCard
                 key={project._id || project.slug}
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: { opacity: 1, y: 0 },
-                }}
-              >
-                <ProjectCard project={project} />
-              </motion.div>
+                project={project}
+              />
             ))}
           </motion.div>
         )}
 
-        {/* ------------------ EMPTY STATE ------------------ */}
-        {!isLoading && projects.length === 0 && !error && (
+        {!isLoading && projects.length === 0 && !isError && (
           <p className="text-center text-muted-foreground mt-8">
             No projects to display yet.
           </p>
         )}
       </div>
     </section>
-  );
-}
-
-/* ------------------ PROJECT CARD COMPONENT ------------------ */
-function ProjectCard({ project }) {
-  return (
-    <Card className="flex h-full flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
-      <CardHeader className="pb-4">
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <h3 className="text-lg font-semibold sm:text-xl line-clamp-2">
-            {project.title}
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {project.featured && (
-              <Badge variant="default" className="text-xs">
-                Featured
-              </Badge>
-            )}
-            {project.category && (
-              <Badge variant="outline" className="text-xs">
-                {project.category}
-              </Badge>
-            )}
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardContent className="flex-1 pb-4">
-        <p className="mb-4 text-sm text-muted-foreground sm:text-base line-clamp-3">
-          {project.description}
-        </p>
-        {project.longDescription && (
-          <p className="mb-4 text-xs text-muted-foreground/70 sm:text-sm line-clamp-3">
-            {project.longDescription.length > 120
-              ? `${project.longDescription.slice(0, 120)}...`
-              : project.longDescription}
-          </p>
-        )}
-        <div className="flex flex-wrap gap-1.5 sm:gap-2">
-          {project.technologies?.slice(0, 5).map((tech) => (
-            <Badge
-              key={tech}
-              variant="secondary"
-              className="text-xs truncate max-w-25"
-            >
-              {tech}
-            </Badge>
-          ))}
-          {project.technologies?.length > 5 && (
-            <Badge variant="outline" className="text-xs">
-              +{project.technologies.length - 5}
-            </Badge>
-          )}
-        </div>
-      </CardContent>
-
-      <CardFooter className="pt-4 border-t mt-auto">
-        <div className="flex flex-wrap gap-2 w-full">
-          {project.liveUrl && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1 min-w-30 text-xs sm:text-sm"
-              asChild
-            >
-              <a
-                href={project.liveUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center"
-              >
-                <ExternalLink className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                Live Demo
-              </a>
-            </Button>
-          )}
-
-          {project.githubUrl && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1 min-w-30 text-xs sm:text-sm"
-              asChild
-            >
-              <a
-                href={project.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center"
-              >
-                <Github className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                Code
-              </a>
-            </Button>
-          )}
-
-          <Button
-            variant="ghost"
-            size="sm"
-            className="flex-1 min-w-30 text-xs sm:text-sm"
-            asChild
-          >
-            <a href={`/projects/${project.slug || project._id}`}>
-              View Details
-            </a>
-          </Button>
-        </div>
-      </CardFooter>
-    </Card>
   );
 }
