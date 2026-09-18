@@ -34,32 +34,22 @@ export default function ProjectManager() {
     if (!confirm("Are you sure you want to delete this project?")) return;
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/projects/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("admin_token")}`,
-          },
-        },
-      );
-
-      if (response.ok) {
-        setProjects(projects.filter((p) => p.id !== id));
-      }
+      await projectsAPI.delete(id);
+      setProjects(projects.filter((p) => p._id !== id));
     } catch (err) {
       console.error("Error deleting project:", err);
     }
   };
 
-  const handleFormSubmit = (newProject) => {
-    if (editingId) {
-      setProjects(projects.map((p) => (p.id === editingId ? newProject : p)));
-    } else {
-      setProjects([...projects, newProject]);
+  const handleFormSubmit = async (project) => {
+    try {
+      await (editingId ? projectsAPI.update(editingId, project) : projectsAPI.create(project));
+      await fetchProjects();
+      setShowForm(false);
+      setEditingId(null);
+    } catch (err) {
+      console.error("Error saving project:", err);
     }
-    setShowForm(false);
-    setEditingId(null);
   };
 
   return (
@@ -88,7 +78,7 @@ export default function ProjectManager() {
               setShowForm(false);
               setEditingId(null);
             }}
-            editingProject={projects.find((p) => p.id === editingId)}
+            editingProject={projects.find((p) => p._id === editingId)}
           />
         </div>
       )}
@@ -116,7 +106,7 @@ export default function ProjectManager() {
           ) : (
             projects.map((project) => (
               <motion.div
-                key={project.id}
+                key={project._id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="p-4 rounded-lg bg-card border border-border flex justify-between items-start hover:border-accent transition-colors duration-200"
@@ -143,7 +133,7 @@ export default function ProjectManager() {
                 <div className="flex gap-2 ml-4">
                   <motion.button
                     onClick={() => {
-                      setEditingId(project.id);
+                      setEditingId(project._id);
                       setShowForm(true);
                     }}
                     whileHover={{ scale: 1.1 }}
@@ -153,7 +143,7 @@ export default function ProjectManager() {
                     <Edit2 size={16} />
                   </motion.button>
                   <motion.button
-                    onClick={() => handleDelete(project.id)}
+                    onClick={() => handleDelete(project._id)}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"

@@ -38,8 +38,7 @@ export default function Contact() {
       `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
     );
 
-    // CHANGE THIS TO YOUR REAL EMAIL
-    const mailToLink = `mailto:your.email@example.com?subject=${subject}&body=${body}`;
+    const mailToLink = `mailto:Chidozinnam@gmail.com?subject=${subject}&body=${body}`;
 
     window.location.href = mailToLink;
   };

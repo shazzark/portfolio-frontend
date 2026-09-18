@@ -46,19 +46,8 @@ export default function SkillManager() {
     if (!confirm("Are you sure you want to delete this skill?")) return;
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/skills/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("admin_token")}`,
-          },
-        },
-      );
-
-      if (response.ok) {
-        setSkills(skills.filter((s) => s.id !== id));
-      }
+      await skillsAPI.delete(id);
+      setSkills(skills.filter((s) => s.id !== id));
     } catch (err) {
       console.error("Error deleting skill:", err);
     }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Lock } from "lucide-react";
+import { adminAPI } from "../../_lib/api";
 
 export default function AdminAuth({ onAuthenticated }) {
   const [secretKey, setSecretKey] = useState("");
@@ -15,17 +16,8 @@ export default function AdminAuth({ onAuthenticated }) {
     setLoading(true);
 
     try {
-      // Validate against the admin secret
-      const adminSecret =
-        process.env.NEXT_PUBLIC_ADMIN_SECRET || "your-secret-key-here";
-
-      if (secretKey === adminSecret) {
-        // Store token in localStorage
-        localStorage.setItem("admin_token", secretKey);
-        onAuthenticated();
-      } else {
-        setError("Invalid secret key");
-      }
+      await adminAPI.login(secretKey);
+      onAuthenticated();
     } catch (err) {
       setError("Authentication failed");
     } finally {
@@ -51,7 +43,7 @@ export default function AdminAuth({ onAuthenticated }) {
 
           <h1 className="text-3xl font-bold text-center mb-2">Admin Access</h1>
           <p className="text-center text-muted-foreground mb-8">
-            Enter your secret key to access the admin panel
+            Sign in to manage portfolio content
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -91,7 +83,7 @@ export default function AdminAuth({ onAuthenticated }) {
           </form>
 
           <p className="text-xs text-muted-foreground text-center mt-8">
-            Default: your-secret-key-here (change in env variables)
+            Your session is secured by the portfolio server.
           </p>
         </div>
       </motion.div>

@@ -33,8 +33,8 @@ export default function Footer() {
             transition={{ duration: 0.5 }}
             className="order-1 sm:order-1 lg:order-1"
           >
-            <h3 className="text-lg font-bold text-foreground mb-2 sm:mb-3">
-              <span className="text-primary">/CN</span> Chidozie Nnam
+            <h3 className="font-display text-lg font-semibold uppercase tracking-[0.12em] text-foreground mb-2 sm:mb-3">
+              CN<span className="text-accent">.</span>
             </h3>
             <p className="text-sm text-muted-foreground max-w-xs">
               Building beautiful and functional web experiences
@@ -54,19 +54,19 @@ export default function Footer() {
             </h4>
             <nav className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2 sm:gap-3">
               {[
-                "About",
-                "Skills",
-                "Projects",
-                "Experience",
-                "Education",
-                "Contact",
+                { label: "Projects", href: "#projects" },
+                { label: "Skills", href: "#skills" },
+                { label: "Current Service", href: "#experience" },
+                { label: "Certificates", href: "#certificates" },
+                { label: "Education", href: "#education" },
+                { label: "Contact", href: "#contact" },
               ].map((item) => (
                 <a
-                  key={item}
-                  href={`#${item.toLowerCase()}`}
+                  key={item.label}
+                  href={item.href}
                   className="text-sm text-muted-foreground hover:text-primary transition-colors py-1"
                 >
-                  {item}
+                  {item.label}
                 </a>
               ))}
             </nav>

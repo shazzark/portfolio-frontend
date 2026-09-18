@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { LogOut, Plus } from "lucide-react";
 import ProjectManager from "./projectManager";
 import SkillManager from "./skillManager";
+import CertificateManager from "./certificateManager";
 
 export default function AdminPanel({ onLogout }) {
   const [activeTab, setActiveTab] = useState("projects");
@@ -12,6 +13,7 @@ export default function AdminPanel({ onLogout }) {
   const tabs = [
     { id: "projects", label: "Projects", icon: "📁" },
     { id: "skills", label: "Skills", icon: "⚙️" },
+    { id: "certificates", label: "Certificates", icon: "Award" },
   ];
 
   return (
@@ -66,6 +68,7 @@ export default function AdminPanel({ onLogout }) {
         >
           {activeTab === "projects" && <ProjectManager />}
           {activeTab === "skills" && <SkillManager />}
+          {activeTab === "certificates" && <CertificateManager />}
         </motion.div>
       </main>
     </div>

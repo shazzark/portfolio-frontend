@@ -1,220 +1,237 @@
 "use client";
 
-import { Moon, Sun, Menu, X } from "lucide-react";
-import { useTheme } from "./themeProvider";
-import { Button } from "./_ui/button";
-import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { ArrowUpRight, Menu, X } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+
+const navItems = [
+  { label: "Work", href: "#projects" },
+  { label: "Capabilities", href: "#skills" },
+  { label: "Current Service", href: "#experience" },
+  { label: "Certificates", href: "#certificates" },
+  { label: "Education", href: "#education" },
+  { label: "Contact", href: "#contact" },
+];
 
 export default function Navigation() {
-  const { theme, toggleTheme } = useTheme();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false); // Track mount state
+  const [isOpen, setIsOpen] = useState(false);
+  const [isHeroVisible, setIsHeroVisible] = useState(true);
+  const shouldReduceMotion = useReducedMotion();
+  const panelRef = useRef(null);
+  const menuButtonRef = useRef(null);
 
-  const navItems = [
-    { label: "About", href: "#about" },
-    { label: "Skills", href: "#skills" },
-    { label: "Projects", href: "#projects" },
-    { label: "Experience", href: "#experience" },
-    { label: "Education", href: "#education" },
-    { label: "Contact", href: "#contact" },
-  ];
-
-  // Set mounted to true on client
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Only run mobile detection on client
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    if (!mounted) return;
-
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkIfMobile();
-    window.addEventListener("resize", checkIfMobile);
-
-    return () => window.removeEventListener("resize", checkIfMobile);
-  }, [mounted]);
-
-  // Handle nav click
-  const handleNavClick = () => {
-    if (isMobile) {
-      setIsMobileMenuOpen(false);
+    if (!isOpen) {
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+      return undefined;
     }
-  };
 
-  // Prevent body scroll
-  useEffect(() => {
-    if (!mounted) return;
-
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
+    document.body.style.overflow = "hidden";
+    document.body.style.paddingRight = `${scrollbarWidth}px`;
 
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
     };
-  }, [isMobileMenuOpen, mounted]);
+  }, [isOpen]);
 
-  // Don't render until mounted to avoid hydration mismatch
-  if (!mounted) {
-    return (
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/95 backdrop-blur-md">
-        <div className="container mx-auto flex items-center justify-between px-4 py-4">
-          <a href="#" className="text-xl font-bold">
-            {"/CN Chidozie Nnam"}
-          </a>
-          <div className="h-10 w-10"></div> {/* Empty space for theme button */}
-        </div>
-      </nav>
+  useEffect(() => {
+    const hero = document.getElementById("top");
+    if (!hero) return undefined;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsHeroVisible(entry.isIntersecting),
+      { threshold: 0 },
     );
-  }
+
+    observer.observe(hero);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+    const closeOnOutsideClick = (event) => {
+      if (
+        isOpen &&
+        !panelRef.current?.contains(event.target) &&
+        !menuButtonRef.current?.contains(event.target)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", closeOnEscape);
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    return () => {
+      window.removeEventListener("keydown", closeOnEscape);
+      document.removeEventListener("pointerdown", closeOnOutsideClick);
+    };
+  }, [isOpen]);
+
+  const closeMenu = () => setIsOpen(false);
 
   return (
-    <>
-      <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/95 backdrop-blur-md"
-      >
-        <div className="container mx-auto flex items-center justify-between px-4 py-4">
-          <a href="#" className="text-xl font-bold">
-            <span className="text-primary">/CN</span> Chidozie Nnam
-          </a>
-          {/* rest of your nav items */}
+    <motion.nav
+      animate={{
+        backgroundColor: isHeroVisible
+          ? "rgba(11, 11, 10, 0)"
+          : "rgba(11, 11, 10, 0.84)",
+        borderColor: isHeroVisible
+          ? "rgba(243, 240, 232, 0)"
+          : "rgba(243, 240, 232, 0.1)",
+      }}
+      transition={{ duration: shouldReduceMotion ? 0 : 0.24 }}
+      className={`fixed inset-x-0 top-0 z-50 border-b ${isHeroVisible ? "" : "backdrop-blur-md"}`}
+      aria-label="Primary navigation"
+    >
+      <div className="mx-auto flex h-20 max-w-400 items-center justify-between px-5 sm:px-8 md:px-12 lg:h-24 lg:px-16">
+        <a
+          href="#top"
+          className="font-display text-sm font-semibold uppercase tracking-[0.12em] text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring lg:text-base"
+        >
+          CN<span className="text-accent">.</span>
+        </a>
 
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              aria-label="Toggle theme"
-              className="h-10 w-10 cursor-pointer"
+        <div className="hidden items-center gap-9 lg:flex xl:gap-12">
+          {navItems.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className="text-[0.62rem] font-medium uppercase tracking-[0.22em] text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
             >
-              {theme === "light" ? (
-                <Moon className="h-5 w-5" />
-              ) : (
-                <Sun className="h-5 w-5" />
-              )}
-            </Button>
-
-            <ul className="hidden items-center gap-6 md:flex">
-              {navItems.map((item) => (
-                <li key={item.href}>
-                  <a
-                    href={item.href}
-                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    {item.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden h-10 w-10"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
-            >
-              {isMobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </Button>
-          </div>
+              {item.label}
+            </a>
+          ))}
         </div>
-      </motion.nav>
+
+        <a
+          href="#contact"
+          className="hidden text-[0.62rem] font-medium uppercase tracking-[0.22em] text-foreground transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring lg:block"
+        >
+          Let&apos;s talk
+        </a>
+
+        <button
+          type="button"
+          ref={menuButtonRef}
+          className="inline-flex size-11 items-center justify-center text-foreground transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring lg:hidden"
+          onClick={() => setIsOpen((open) => !open)}
+          aria-expanded={isOpen}
+          aria-controls="mobile-navigation"
+          aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
+        >
+          <AnimatePresence initial={false} mode="wait">
+            {isOpen ? (
+              <motion.span
+                key="close"
+                initial={
+                  shouldReduceMotion
+                    ? { opacity: 1 }
+                    : { opacity: 0, rotate: -45, scale: 0.7 }
+                }
+                animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                exit={
+                  shouldReduceMotion
+                    ? { opacity: 1 }
+                    : { opacity: 0, rotate: 45, scale: 0.7 }
+                }
+                transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <X className="size-5" aria-hidden="true" />
+              </motion.span>
+            ) : (
+              <motion.span
+                key="menu"
+                initial={
+                  shouldReduceMotion
+                    ? { opacity: 1 }
+                    : { opacity: 0, rotate: 45, scale: 0.7 }
+                }
+                animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                exit={
+                  shouldReduceMotion
+                    ? { opacity: 1 }
+                    : { opacity: 0, rotate: -45, scale: 0.7 }
+                }
+                transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <Menu className="size-5" aria-hidden="true" />
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </button>
+      </div>
 
       <AnimatePresence>
-        {isMobileMenuOpen && (
-          <>
+        {isOpen && (
+          <motion.div
+            id="mobile-navigation"
+            ref={panelRef}
+            initial={
+              shouldReduceMotion
+                ? { opacity: 1 }
+                : { opacity: 0, y: -20, clipPath: "inset(0 0 100% 0)" }
+            }
+            animate={{ opacity: 1, y: 0, clipPath: "inset(0 0 0% 0)" }}
+            exit={
+              shouldReduceMotion
+                ? { opacity: 1 }
+                : { opacity: 0, y: -14, clipPath: "inset(0 0 100% 0)" }
+            }
+            transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed right-4 top-22 max-h-[70svh] w-[min(22rem,calc(100vw-2rem))] overflow-y-auto border border-foreground/10 bg-[rgb(11_11_10/0.94)] p-6 shadow-2xl shadow-black/30 backdrop-blur-md sm:right-8 sm:top-24 sm:p-8 lg:hidden"
+          >
+            <div className="mb-6 flex items-center justify-between border-b border-foreground/10 pb-4">
+              <span className="text-[0.6rem] font-medium uppercase tracking-[0.24em] text-muted-foreground">
+                Navigate
+              </span>
+              <span className="h-px w-10 bg-accent" aria-hidden="true" />
+            </div>
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-40 bg-black/50 md:hidden"
-              onClick={() => setIsMobileMenuOpen(false)}
-            />
-
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed right-0 top-0 z-50 h-screen ww-70 border-l border-border bg-background shadow-lg md:hidden"
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              variants={{
+                hidden: {},
+                visible: {
+                  transition: {
+                    delayChildren: shouldReduceMotion ? 0 : 0.12,
+                    staggerChildren: shouldReduceMotion ? 0 : 0.07,
+                  },
+                },
+              }}
+              className="space-y-1"
             >
-              <div className="flex h-16 items-center justify-between border-b border-border px-6">
-                <span className="text-lg font-semibold">Menu</span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  aria-label="Close menu"
+              {navItems.map((item) => (
+                <motion.a
+                  key={item.href}
+                  href={item.href}
+                  onClick={closeMenu}
+                  variants={{
+                    hidden: shouldReduceMotion
+                      ? { opacity: 1 }
+                      : { opacity: 0, x: -18 },
+                    visible: { opacity: 1, x: 0 },
+                  }}
+                  transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
+                  className="group flex min-h-11 items-center justify-between border-b border-foreground/10 py-3 font-display text-2xl font-medium uppercase tracking-[0.02em] text-foreground transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
                 >
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
-
-              <nav className="p-6">
-                <ul className="space-y-4">
-                  {navItems.map((item) => (
-                    <motion.li
-                      key={item.href}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.1 }}
-                    >
-                      <a
-                        href={item.href}
-                        className="block rounded-lg px-4 py-3 text-lg font-medium text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
-                        onClick={handleNavClick}
-                      >
-                        {item.label}
-                      </a>
-                    </motion.li>
-                  ))}
-                </ul>
-
-                <div className="mt-8 border-t border-border pt-6">
-                  <div className="flex items-center justify-between px-4">
-                    <span className="text-sm font-medium">Theme</span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        toggleTheme();
-                        handleNavClick();
-                      }}
-                    >
-                      {theme === "light" ? (
-                        <>
-                          <Moon className="mr-2 h-4 w-4" />
-                          Dark Mode
-                        </>
-                      ) : (
-                        <>
-                          <Sun className="mr-2 h-4 w-4" />
-                          Light Mode
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </nav>
+                  {item.label}
+                  <ArrowUpRight
+                    className="size-4 text-muted-foreground transition-transform duration-200 group-hover:translate-x-1"
+                    aria-hidden="true"
+                  />
+                </motion.a>
+              ))}
             </motion.div>
-          </>
+          </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </motion.nav>
   );
 }

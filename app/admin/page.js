@@ -4,23 +4,22 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import AdminAuth from "../_component/admin/adminAuth";
 import AdminPanel from "../_component/admin/adminPanel";
+import { adminAPI } from "../_lib/api";
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if admin is already authenticated
-    const token = localStorage.getItem("admin_token");
-    if (token) {
-      setIsAuthenticated(true);
-    }
-    setIsLoading(false);
+    adminAPI
+      .session()
+      .then(() => setIsAuthenticated(true))
+      .catch(() => setIsAuthenticated(false))
+      .finally(() => setIsLoading(false));
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("admin_token");
-    setIsAuthenticated(false);
+    adminAPI.logout().finally(() => setIsAuthenticated(false));
   };
 
   if (isLoading) {

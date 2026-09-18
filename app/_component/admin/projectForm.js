@@ -45,12 +45,9 @@ export default function ProjectForm({ onSubmit, onCancel, editingProject }) {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit({
-      ...formData,
-      id: editingProject?.id || Date.now(),
-    });
+    await onSubmit(formData);
   };
 
   return (

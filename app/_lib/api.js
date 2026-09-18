@@ -11,12 +11,12 @@ if (!API_BASE_URL) {
   console.error("❌ NEXT_PUBLIC_API_URL environment variable is not set!");
   console.error("Add it to your .env.local or .env.production file:");
   console.error(
-    "NEXT_PUBLIC_API_URL=https://portfolio-backend-clean-95b4.onrender.com/api/v1"
+    "NEXT_PUBLIC_API_URL=https://portfolio-backend-clean-95b4.onrender.com/api/v1",
   );
   // Throw error in development, but not in production to avoid breaking builds
   if (process.env.NODE_ENV === "development") {
     throw new Error(
-      "NEXT_PUBLIC_API_URL is not configured. See console for details."
+      "NEXT_PUBLIC_API_URL is not configured. See console for details.",
     );
   }
 } else {
@@ -28,7 +28,7 @@ function getApiBaseUrl() {
   const url = process.env.NEXT_PUBLIC_API_URL;
   if (!url) {
     throw new Error(
-      "API URL not configured. Set NEXT_PUBLIC_API_URL in your environment variables."
+      "API URL not configured. Set NEXT_PUBLIC_API_URL in your environment variables.",
     );
   }
   return url;
@@ -47,13 +47,9 @@ async function request(endpoint, options = {}) {
     "Content-Type": "application/json",
   };
 
-  // Add admin secret if needed (for protected routes)
-  if (options.isAdmin) {
-    defaultHeaders["X-Admin-Secret"] = process.env.NEXT_PUBLIC_ADMIN_SECRET;
-  }
-
   const config = {
     ...options,
+    credentials: "include",
     headers: {
       ...defaultHeaders,
       ...options.headers,
@@ -70,9 +66,11 @@ async function request(endpoint, options = {}) {
       }));
       console.error(`❌ API Error ${response.status}:`, error);
       throw new Error(
-        error.message || `Request failed with status ${response.status}`
+        error.message || `Request failed with status ${response.status}`,
       );
     }
+
+    if (response.status === 204) return null;
 
     const data = await response.json();
     return data;
@@ -296,6 +294,31 @@ export const experienceAPI = {
   },
 };
 
+export const certificatesAPI = {
+  getAll: () => request("/certificates"),
+  create: (certificate) =>
+    request("/certificates", {
+      method: "POST",
+      body: JSON.stringify(certificate),
+    }),
+  update: (id, certificate) =>
+    request(`/certificates/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(certificate),
+    }),
+  delete: (id) => request(`/certificates/${id}`, { method: "DELETE" }),
+};
+
+export const adminAPI = {
+  login: (secret) =>
+    request("/admin/login", {
+      method: "POST",
+      body: JSON.stringify({ secret }),
+    }),
+  session: () => request("/admin/session"),
+  logout: () => request("/admin/logout", { method: "POST" }),
+};
+
 /**
  * Export all APIs in one object for convenience
  */
@@ -305,4 +328,6 @@ export const api = {
   skills: skillsAPI,
   projects: projectsAPI,
   experience: experienceAPI, // Added
+  certificates: certificatesAPI,
+  admin: adminAPI,
 };
