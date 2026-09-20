@@ -3,12 +3,13 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "./_ui/card";
-import { Award, ExternalLink } from "lucide-react";
+import { Award, ChevronDown, ExternalLink } from "lucide-react";
 import { certificatesAPI } from "../_lib/api";
 
 export default function Certificates() {
   const [certificates, setCertificates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const shouldReduceMotion = useReducedMotion();
   useEffect(() => {
     certificatesAPI
@@ -17,6 +18,9 @@ export default function Certificates() {
       .catch(() => setCertificates([]))
       .finally(() => setLoading(false));
   }, []);
+  const hasMoreCertificates = certificates.length > 4;
+  const visibleCertificates = isExpanded ? certificates : certificates.slice(0, 4);
+  const hiddenCertificateCount = certificates.length - 4;
   return (
     <section
       id="certificates"
@@ -52,8 +56,8 @@ export default function Certificates() {
             </Card>
           </div>
         ) : (
-          <div className="mx-auto max-w-4xl space-y-6">
-            {certificates.map((certificate, index) => (
+          <div id="certificate-list" className="mx-auto max-w-4xl space-y-6">
+            {visibleCertificates.map((certificate, index) => (
               <motion.div
                 key={certificate._id}
                 initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
@@ -107,6 +111,23 @@ export default function Certificates() {
                 </Card>
               </motion.div>
             ))}
+            {hasMoreCertificates && (
+              <button
+                type="button"
+                onClick={() => setIsExpanded((expanded) => !expanded)}
+                aria-expanded={isExpanded}
+                aria-controls="certificate-list"
+                className="group inline-flex min-h-11 items-center gap-2 border-b border-foreground/30 pb-1 text-xs font-semibold uppercase tracking-[0.18em] text-foreground transition-colors hover:border-accent hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+              >
+                {isExpanded
+                  ? "Show fewer"
+                  : `View ${hiddenCertificateCount} more certificate${hiddenCertificateCount === 1 ? "" : "s"}`}
+                <ChevronDown
+                  className={`size-4 transition-transform duration-200 motion-reduce:transition-none ${isExpanded ? "rotate-180" : ""}`}
+                  aria-hidden="true"
+                />
+              </button>
+            )}
           </div>
         )}
       </div>

@@ -6,7 +6,10 @@ import { Upload } from "lucide-react";
 
 export default function ProjectForm({ onSubmit, onCancel, editingProject }) {
   const [formData, setFormData] = useState(
-    editingProject || {
+    editingProject ? {
+      ...editingProject,
+      image: editingProject.featuredImage || editingProject.images?.[0]?.url || "",
+    } : {
       title: "",
       description: "",
       longDescription: "",

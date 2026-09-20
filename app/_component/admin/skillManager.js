@@ -27,8 +27,8 @@ export default function SkillManager() {
         ? data.data.categories.flatMap((cat) =>
             cat.skills.map((skill) => ({
               ...skill,
-              category: cat.title,
-              icon: cat.icon,
+              _id: skill.id,
+              category: cat,
             })),
           )
         : [];
@@ -47,20 +47,22 @@ export default function SkillManager() {
 
     try {
       await skillsAPI.delete(id);
-      setSkills(skills.filter((s) => s.id !== id));
+      setSkills((items) => items.filter((skill) => skill._id !== id));
     } catch (err) {
       console.error("Error deleting skill:", err);
     }
   };
 
-  const handleFormSubmit = (newSkill) => {
-    if (editingId) {
-      setSkills(skills.map((s) => (s.id === editingId ? newSkill : s)));
-    } else {
-      setSkills([...skills, newSkill]);
+  const handleFormSubmit = async (skill) => {
+    try {
+      if (editingId) await skillsAPI.update(editingId, skill);
+      else await skillsAPI.create(skill);
+      await fetchSkills();
+      setShowForm(false);
+      setEditingId(null);
+    } catch (err) {
+      console.error("Error saving skill:", err);
     }
-    setShowForm(false);
-    setEditingId(null);
   };
 
   return (
@@ -89,7 +91,7 @@ export default function SkillManager() {
               setShowForm(false);
               setEditingId(null);
             }}
-            editingSkill={skills.find((s) => s.id === editingId)}
+            editingSkill={skills.find((skill) => skill._id === editingId)}
           />
         </div>
       )}
@@ -117,7 +119,7 @@ export default function SkillManager() {
           ) : (
             skills.map((skill) => (
               <motion.div
-                key={skill.id}
+                key={skill._id}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="p-4 rounded-lg bg-card border border-border hover:border-accent transition-colors duration-200"
@@ -129,24 +131,12 @@ export default function SkillManager() {
                       <h3 className="font-bold text-foreground">
                         {skill.name}
                       </h3>
-                      <p className="text-xs text-muted-foreground">
-                        {skill.category}
-                      </p>
+                      <p className="text-xs text-muted-foreground">{skill.category.title}</p>
                     </div>
                   </div>
-                  <span className="text-xs font-semibold text-accent px-2 py-1 rounded-full bg-accent/10">
-                    {skill.proficiency}%
-                  </span>
                 </div>
 
-                {skill.yearsOfExperience && (
-                  <p className="text-xs text-muted-foreground mb-3">
-                    {skill.yearsOfExperience} year
-                    {skill.yearsOfExperience !== 1 ? "s" : ""} exp
-                  </p>
-                )}
-
-                {skill.featured && (
+                {skill.isFeatured && (
                   <div className="mb-3 px-2 py-1 rounded text-xs bg-accent/10 text-accent font-semibold inline-block">
                     Featured
                   </div>
@@ -155,7 +145,7 @@ export default function SkillManager() {
                 <div className="flex gap-2">
                   <motion.button
                     onClick={() => {
-                      setEditingId(skill.id);
+                      setEditingId(skill._id);
                       setShowForm(true);
                     }}
                     whileHover={{ scale: 1.1 }}
@@ -166,7 +156,7 @@ export default function SkillManager() {
                     Edit
                   </motion.button>
                   <motion.button
-                    onClick={() => handleDelete(skill.id)}
+                    onClick={() => handleDelete(skill._id)}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"

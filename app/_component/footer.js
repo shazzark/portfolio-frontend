@@ -24,14 +24,14 @@ export default function Footer() {
   return (
     <footer className="bg-muted/50 border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12 mb-8 md:mb-12">
+        <div className="grid grid-cols-1 gap-8 mb-8 sm:grid-cols-2 md:mb-12">
           {/* Brand Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="order-1 sm:order-1 lg:order-1"
+            className="order-1"
           >
             <h3 className="font-display text-lg font-semibold uppercase tracking-[0.12em] text-foreground mb-2 sm:mb-3">
               CN<span className="text-accent">.</span>
@@ -41,49 +41,18 @@ export default function Footer() {
             </p>
           </motion.div>
 
-          {/* Quick Links */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="order-3 sm:order-2 lg:order-2 sm:col-span-2 lg:col-span-1"
-          >
-            <h4 className="text-sm font-semibold text-foreground mb-4 sm:mb-5">
-              Quick Links
-            </h4>
-            <nav className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2 sm:gap-3">
-              {[
-                { label: "Projects", href: "#projects" },
-                { label: "Skills", href: "#skills" },
-                { label: "Current Service", href: "#experience" },
-                { label: "Certificates", href: "#certificates" },
-                { label: "Education", href: "#education" },
-                { label: "Contact", href: "#contact" },
-              ].map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors py-1"
-                >
-                  {item.label}
-                </a>
-              ))}
-            </nav>
-          </motion.div>
-
           {/* Social Links */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="order-2 sm:order-3 lg:order-3"
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="order-2"
           >
-            <h4 className="text-sm font-semibold text-foreground mb-4 sm:mb-5">
+            <h4 className="mb-4 text-center text-sm font-semibold text-foreground sm:mb-5 sm:text-left">
               Connect
             </h4>
-            <div className="flex flex-wrap gap-3 sm:gap-4">
+            <div className="flex flex-wrap justify-center gap-3 sm:justify-start sm:gap-4">
               {socialLinks.map(({ icon: Icon, href, label }) => (
                 <a
                   key={label}

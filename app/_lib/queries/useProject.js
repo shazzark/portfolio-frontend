@@ -2,9 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { projectsData } from "../projectData";
 
 const getProjects = async () => {
-  return projectsData
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(0, 12);
+  return [...projectsData].sort((a, b) => a.order - b.order);
 };
 
 export function useProjects() {

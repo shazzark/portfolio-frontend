@@ -43,7 +43,14 @@ export default function ProjectManager() {
 
   const handleFormSubmit = async (project) => {
     try {
-      await (editingId ? projectsAPI.update(editingId, project) : projectsAPI.create(project));
+      const { image, ...fields } = project;
+      const payload = {
+        ...fields,
+        images: image
+          ? [{ url: image, alt: `${project.title} project preview`, isFeatured: true }]
+          : project.images || [],
+      };
+      await (editingId ? projectsAPI.update(editingId, payload) : projectsAPI.create(payload));
       await fetchProjects();
       setShowForm(false);
       setEditingId(null);

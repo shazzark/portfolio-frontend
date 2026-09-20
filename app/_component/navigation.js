@@ -86,7 +86,7 @@ export default function Navigation() {
           : "rgba(243, 240, 232, 0.1)",
       }}
       transition={{ duration: shouldReduceMotion ? 0 : 0.24 }}
-      className={`fixed inset-x-0 top-0 z-50 border-b ${isHeroVisible ? "" : "backdrop-blur-md"}`}
+      className={`fixed inset-x-0 top-0 z-50 border-b ${isHeroVisible ? "backdrop-blur-none" : "backdrop-blur-md"}`}
       aria-label="Primary navigation"
     >
       <div className="mx-auto flex h-20 max-w-400 items-center justify-between px-5 sm:px-8 md:px-12 lg:h-24 lg:px-16">

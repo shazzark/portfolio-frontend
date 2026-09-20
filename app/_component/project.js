@@ -1,12 +1,15 @@
 "use client";
 
 import { useProjects } from "../_lib/queries/useProject";
+import { useState } from "react";
 import ErrorMessage from "../_component/_ui/errorMessage";
 import SkeletonLoader from "./_ui/skeletonLoader";
 import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 import ProjectCard from "./_ui/projectCard";
 
 export default function Projects() {
+  const [isExpanded, setIsExpanded] = useState(false);
   const { data: projects = [], isLoading, isError, error } = useProjects();
   const leadProject = projects.find((project) => {
     const projectName = `${project.slug || ""} ${project.title || ""}`.toLowerCase();
@@ -15,6 +18,11 @@ export default function Projects() {
   const supportingProjects = projects.filter(
     (project) => project !== leadProject
   );
+  const hasMoreProjects = supportingProjects.length > 3;
+  const visibleSupportingProjects = isExpanded
+    ? supportingProjects
+    : supportingProjects.slice(0, 3);
+  const hiddenProjectCount = supportingProjects.length - 3;
 
   return (
     <section
@@ -65,8 +73,8 @@ export default function Projects() {
               lead
             />
             {supportingProjects.length > 0 && (
-              <div className="mt-16 md:mt-24">
-                {supportingProjects.map((project, index) => (
+              <div id="supporting-projects" className="mt-16 md:mt-24">
+                {visibleSupportingProjects.map((project, index) => (
                   <ProjectCard
                     key={project._id || project.slug}
                     project={project}
@@ -74,6 +82,23 @@ export default function Projects() {
                     reverse={index % 2 === 1}
                   />
                 ))}
+                {hasMoreProjects && (
+                  <button
+                    type="button"
+                    onClick={() => setIsExpanded((expanded) => !expanded)}
+                    aria-expanded={isExpanded}
+                    aria-controls="supporting-projects"
+                    className="group mt-8 inline-flex min-h-11 items-center gap-2 border-b border-foreground/30 pb-1 text-xs font-semibold uppercase tracking-[0.18em] text-foreground transition-colors hover:border-accent hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring md:mt-12"
+                  >
+                    {isExpanded
+                      ? "Show fewer"
+                      : `View ${hiddenProjectCount} more project${hiddenProjectCount === 1 ? "" : "s"}`}
+                    <ChevronDown
+                      className={`size-4 transition-transform duration-200 motion-reduce:transition-none ${isExpanded ? "rotate-180" : ""}`}
+                      aria-hidden="true"
+                    />
+                  </button>
+                )}
               </div>
             )}
           </div>

@@ -13,6 +13,7 @@ export const projectsData = [
     githubUrl: "https://github.com/shazzark/the-bookfinder-v2",
     imageUrl: "/images/bookfinder-preview.png",
     createdAt: "2025-01-01",
+    order: 5,
   },
 
   {
@@ -29,6 +30,7 @@ export const projectsData = [
     githubUrl: "https://github.com/shazzark/real-estatemanagement-frontend",
     imageUrl: "/images/luxeEstate-preview.png",
     createdAt: "2024-12-15",
+    order: 4,
   },
   {
     _id: "3",
@@ -54,6 +56,7 @@ export const projectsData = [
     githubUrl: "https://github.com/shazzark/Scalable-Ecommerce-website-frontend-", // add if you have a repo link
     imageUrl: "/images/storepro-preview.png",
     createdAt: "2026-01-23",
+    order: 1,
   },
   {
     _id: "4",
@@ -77,6 +80,7 @@ export const projectsData = [
     githubUrl: "https://github.com/shazzark/flight-booking-system-frontend", // Add GitHub link if available
     imageUrl: "/images/flight-booking-preview.png",
     createdAt: "2026-01-23",
+    order: 2,
   },
   {
     _id: "5",
@@ -101,5 +105,6 @@ export const projectsData = [
     imageUrl: "/images/cecilia-preview.png",
 
     createdAt: "2026-01-23",
+    order: 3,
   },
 ];

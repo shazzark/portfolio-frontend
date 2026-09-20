@@ -33,8 +33,8 @@ export const skillsData = {
       skills: [
         { id: 1, name: "React", icon: "react" },
         { id: 2, name: "Next.js", icon: "nextjs" },
-        { id: 3, name: "Tailwind CSS", icon: "tailwind" },
         { id: 4, name: "TypeScript", icon: "typescript" },
+        { id: 3, name: "Tailwind CSS", icon: "tailwind" },
         { id: 5, name: "JavaScript", icon: "javascript" },
         { id: 6, name: "HTML5", icon: "html5" },
         { id: 7, name: "CSS3", icon: "css3" },
