@@ -65,6 +65,7 @@ export const skillsData = {
           name: "Backend Deployment",
           icon: "deploy",
         },
+        { id: 24, name: "Socket.IO", icon: "socketio" },
       ],
     },
 

@@ -13,7 +13,7 @@ export const projectsData = [
     githubUrl: "https://github.com/shazzark/the-bookfinder-v2",
     imageUrl: "/images/bookfinder-preview.png",
     createdAt: "2025-01-01",
-    order: 5,
+    order: 6,
   },
 
   {
@@ -30,7 +30,7 @@ export const projectsData = [
     githubUrl: "https://github.com/shazzark/real-estatemanagement-frontend",
     imageUrl: "/images/luxeEstate-preview.png",
     createdAt: "2024-12-15",
-    order: 4,
+    order: 5,
   },
   {
     _id: "3",
@@ -63,16 +63,19 @@ export const projectsData = [
     slug: "flight-booking-system",
     title: "Flight Booking System",
     description:
-      "A modern, business-oriented flight booking web application with production-grade features.",
+      "Full-stack flight booking platform with flight search, authentication, role-based admin management, booking workflows, simulated payments, and real-time flight status updates.",
     longDescription:
       "This project is built with Next.js (App Router), Tailwind CSS, Framer Motion, and Lucide Icons, with cookie-based JWT authentication. Features include role-based access (User/Admin), flight search by origin, destination, and date, booking lifecycle management (pending → payment → confirmed → cancellation), secure payments integration (mock-ready / extendable to Stripe), and an admin dashboard to manage flights, bookings, and payments. Fully responsive UI with smooth animations, clean architecture, and proper REST API consumption ensures production-ready frontend/backend interaction.",
     technologies: [
       "Next.js",
+      "React",
+      "Node.js",
+      "Express",
+      "MongoDB",
+      "Mongoose",
+      "Socket.IO",
+      "JWT",
       "Tailwind CSS",
-      "Framer Motion",
-      "Lucide Icons",
-      "JWT Authentication",
-      "REST API",
     ],
     featured: true,
     category: "Full Stack",
@@ -106,5 +109,30 @@ export const projectsData = [
 
     createdAt: "2026-01-23",
     order: 3,
+  },
+  {
+    _id: "6",
+    slug: "cinebook",
+    title: "CineBook",
+    description:
+      "A full-stack movie reservation platform with movie discovery, showtime scheduling, interactive seat selection, secure reservations, an admin CMS, and TMDB-powered movie imports.",
+    longDescription:
+      "CineBook is a full-stack movie reservation platform built with Next.js, TypeScript, MongoDB, Mongoose, NextAuth, TanStack Query, and Tailwind CSS. It features movie discovery, showtime scheduling, interactive seat selection, secure reservations, an admin CMS, and TMDB-powered movie imports.",
+    technologies: [
+      "Next.js",
+      "TypeScript",
+      "MongoDB",
+      "Mongoose",
+      "NextAuth",
+      "TanStack Query",
+      "Tailwind CSS",
+    ],
+    featured: true,
+    category: "Full Stack",
+    liveUrl: "https://cinebook-swart.vercel.app/",
+    githubUrl: "https://github.com/shazzark/movie-reservation-system",
+    imageUrl: "/images/cinebook-preview.png",
+    createdAt: "2026-09-26",
+    order: 4,
   },
 ];

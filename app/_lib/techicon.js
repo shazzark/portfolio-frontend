@@ -10,6 +10,7 @@ import {
   SiCss3,
   SiNodedotjs,
   SiExpress,
+  SiSocketdotio,
   SiMongodb,
   SiPostgresql,
   SiGit,
@@ -40,6 +41,7 @@ const techIconMap = {
   // Backend
   nodejs: SiNodedotjs,
   express: SiExpress,
+  socketio: SiSocketdotio,
   mongodb: SiMongodb,
   postgresql: SiPostgresql,
   reactnative: SiReact,

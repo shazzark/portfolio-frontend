@@ -11,10 +11,7 @@ import ProjectCard from "./_ui/projectCard";
 export default function Projects() {
   const [isExpanded, setIsExpanded] = useState(false);
   const { data: projects = [], isLoading, isError, error } = useProjects();
-  const leadProject = projects.find((project) => {
-    const projectName = `${project.slug || ""} ${project.title || ""}`.toLowerCase();
-    return projectName.includes("cinebook");
-  }) || projects[0];
+  const leadProject = projects[0];
   const supportingProjects = projects.filter(
     (project) => project !== leadProject
   );
